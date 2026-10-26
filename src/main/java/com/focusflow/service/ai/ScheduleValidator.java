@@ -74,8 +74,8 @@ public class ScheduleValidator {
 					throw new IllegalArgumentException("Slot duration must match task estimate for task " + task.getId());
 				}
 
-				// Why: repeated task IDs would create duplicate work entries in the same schedule; each AI task should be scheduled once.
-				if (!seenTaskIds.add(task.getId())) {
+				// Why: repeated task IDs would create duplicate work entries in the same schedule; each accepted AI task should be scheduled once.
+				if (seenTaskIds.contains(task.getId())) {
 					throw new IllegalArgumentException("Duplicate task id " + task.getId() + " in AI response");
 				}
 
@@ -85,6 +85,7 @@ public class ScheduleValidator {
 				}
 
 				validSlots.add(slot);
+				seenTaskIds.add(task.getId());
 			} catch (RuntimeException ex) {
 				log.warn("Dropping invalid AI-generated slot for user {}: {}", user.getId(), ex.getMessage());
 			}
