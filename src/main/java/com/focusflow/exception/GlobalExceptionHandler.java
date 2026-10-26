@@ -31,6 +31,16 @@ public class GlobalExceptionHandler {
 		return buildError(HttpStatus.FORBIDDEN, ex.getMessage());
 	}
 
+//	@ExceptionHandler(AiGenerationException.class)
+//	public ResponseEntity<ErrorResponse> handleAiGenerationFailure(AiGenerationException ex) {
+//		return buildError(HttpStatus.BAD_GATEWAY, "The AI provider failed while generating your schedule. Please try again later.");
+//	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
+		return buildError(HttpStatus.BAD_REQUEST, ex.getMessage());
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex) {
 		FieldError fieldError = ex.getBindingResult().getFieldErrors().stream().findFirst().orElse(null);

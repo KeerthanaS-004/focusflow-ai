@@ -9,6 +9,7 @@ import com.focusflow.entity.User;
 import com.focusflow.exception.ResourceNotFoundException;
 import com.focusflow.exception.UnauthorizedAccessException;
 import com.focusflow.repository.GoalRepository;
+import com.focusflow.repository.TaskRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,16 @@ import org.springframework.stereotype.Service;
 public class GoalService {
 
 	private final GoalRepository goalRepository;
+	private final TaskRepository taskRepository;
 	private final CurrentUserService currentUserService;
 
-	public GoalService(GoalRepository goalRepository, CurrentUserService currentUserService) {
+	public GoalService(
+		GoalRepository goalRepository,
+		TaskRepository taskRepository,
+		CurrentUserService currentUserService
+	) {
 		this.goalRepository = goalRepository;
+		this.taskRepository = taskRepository;
 		this.currentUserService = currentUserService;
 	}
 
@@ -59,6 +66,12 @@ public class GoalService {
 	public void delete(Long id) {
 		User currentUser = currentUserService.getCurrentUser();
 		Goal goal = getOwnedGoal(id, currentUser);
+		taskRepository.findByUserId(currentUser.getId()).stream()
+			.filter(task -> task.getGoal() != null && task.getGoal().getId().equals(goal.getId()))
+			.forEach(task -> {
+				task.setGoal(null);
+				taskRepository.save(task);
+			});
 		goalRepository.delete(goal);
 	}
 

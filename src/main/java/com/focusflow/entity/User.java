@@ -1,11 +1,15 @@
 package com.focusflow.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,6 +27,9 @@ public class User extends BaseEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private Role role = Role.USER;
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<AvailabilitySlot> availabilitySlots = new ArrayList<>();
 
 	@PrePersist
 	void ensureDefaultRole() {
@@ -61,5 +68,13 @@ public class User extends BaseEntity {
 
 	public void setRole(Role role) {
 		this.role = role;
+	}
+
+	public List<AvailabilitySlot> getAvailabilitySlots() {
+		return availabilitySlots;
+	}
+
+	public void setAvailabilitySlots(List<AvailabilitySlot> availabilitySlots) {
+		this.availabilitySlots = availabilitySlots;
 	}
 }
