@@ -1,13 +1,13 @@
 package com.focusflow.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.focusflow.exception.ErrorResponse;
 import com.focusflow.security.JwtAuthFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +32,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
 	private final JwtAuthFilter jwtAuthFilter;
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
 	public SecurityConfig(JwtAuthFilter jwtAuthFilter) {
 		this.jwtAuthFilter = jwtAuthFilter;
@@ -62,12 +63,12 @@ public class SecurityConfig {
 			response.setContentType("application/json");
 			response.setCharacterEncoding("UTF-8");
 			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			ErrorResponse errorResponse = new ErrorResponse(
-				LocalDateTime.now(),
-				HttpStatus.UNAUTHORIZED.value(),
-				authException != null ? authException.getMessage() : "Authentication required"
+			Map<String, Object> errorResponse = Map.of(
+				"timestamp", LocalDateTime.now().toString(),
+				"status", HttpStatus.UNAUTHORIZED.value(),
+				"message", authException != null ? authException.getMessage() : "Authentication required"
 			);
-			response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
+			response.getWriter().write(OBJECT_MAPPER.writeValueAsString(errorResponse));
 		};
 	}
 
